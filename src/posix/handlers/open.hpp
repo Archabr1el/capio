@@ -1,8 +1,6 @@
 #ifndef CAPIO_POSIX_HANDLERS_OPENAT_HPP
 #define CAPIO_POSIX_HANDLERS_OPENAT_HPP
 
-#if defined(SYS_creat) || defined(SYS_open) || defined(SYS_openat)
-
 #include "utils/common.hpp"
 #include "utils/filesystem.hpp"
 
@@ -34,6 +32,9 @@ std::string compute_abs_path(char *pathname, int dirfd) {
     return path;
 }
 
+#endif
+
+#if defined(SYS_creat)
 int creat_handler(long arg0, long arg1, long arg2, long arg3, long arg4, long arg5, long *result) {
     std::string pathname(reinterpret_cast<const char *>(arg0));
     auto tid    = static_cast<pid_t>(syscall_no_intercept(SYS_gettid));
@@ -60,7 +61,8 @@ int creat_handler(long arg0, long arg1, long arg2, long arg3, long arg4, long ar
     *result = fd;
     return CAPIO_POSIX_SYSCALL_SUCCESS;
 }
-
+#endif
+#if defined(SYS_open)
 int open_handler(long arg0, long arg1, long arg2, long arg3, long arg4, long arg5, long *result) {
     std::string pathname(reinterpret_cast<const char *>(arg0));
     int flags   = static_cast<int>(arg1);
@@ -90,7 +92,9 @@ int open_handler(long arg0, long arg1, long arg2, long arg3, long arg4, long arg
     *result = fd;
     return CAPIO_POSIX_SYSCALL_SUCCESS;
 }
+#endif
 
+#if defined(SYS_openat)
 int openat_handler(long arg0, long arg1, long arg2, long arg3, long arg4, long arg5, long *result) {
     int dirfd = static_cast<int>(arg0);
     std::string pathname(reinterpret_cast<const char *>(arg1));
@@ -124,4 +128,3 @@ int openat_handler(long arg0, long arg1, long arg2, long arg3, long arg4, long a
 }
 
 #endif // SYS_creat || SYS_open || SYS_openat
-#endif // CAPIO_POSIX_HANDLERS_OPENAT_HPP
