@@ -80,7 +80,7 @@ int open_handler(long arg0, long arg1, long arg2, long arg3, long arg4, long arg
         }
     }
 
-    int fd = static_cast<int>(syscall_no_intercept(SYS_open, arg0, arg1, arg2, arg3, arg4, arg5));
+    int fd = static_cast<int>(syscall_no_intercept(SYS_openat, arg0, arg1, arg2, arg3, arg4, arg5));
 
     if (is_capio_path(path) && fd >= 0) {
         LOG("Adding capio path");
