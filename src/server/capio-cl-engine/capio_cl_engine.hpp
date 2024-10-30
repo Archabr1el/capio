@@ -20,7 +20,8 @@ class CapioCLEngine {
                                   int,  // commit on close number                            [7]
                                   long, // directory file count                              [8]
                                   std::vector<std::string>, // File dependencies             [9]
-                                  std::regex>> // Regex from name to match globs             [10]
+                                  std::regex, // Regex from name to match globs             [10]
+                                  bool>> // Store File in memory or on FS. true = memory    [11]
         _locations;
 
     static std::string truncateLastN(const std::string &str, const int n) {
@@ -181,7 +182,7 @@ class CapioCLEngine {
 
         _locations.emplace(path, std::make_tuple(producers, consumers, commit_rule, fire_rule,
                                                  permanent, exclude, true, -1, -1, dependencies,
-                                                 CapioCLEngine::generateCapioRegex(path)));
+                                                 CapioCLEngine::generateCapioRegex(path), false));
     }
 
     void newFile(const std::string &path) {
@@ -209,7 +210,7 @@ class CapioCLEngine {
                                std::make_tuple(std::vector<std::string>(),
                                                std::vector<std::string>(), commit, fire, false,
                                                false, true, -1, -1, std::vector<std::string>(),
-                                               CapioCLEngine::generateCapioRegex(path)));
+                                               CapioCLEngine::generateCapioRegex(path), false));
         }
     }
 
@@ -426,6 +427,25 @@ class CapioCLEngine {
             return std::get<9>(itm->second);
         }
         return {};
+    }
+
+    void setStoreFileInMemory(const std::filesystem::path &path) {
+        if (const auto itm = _locations.find(path); itm != _locations.end()) {
+            std::get<11>(itm->second) = true;
+        }
+    }
+
+    void setStoreFileInFileSystem(const std::filesystem::path &path) {
+        if (const auto itm = _locations.find(path); itm != _locations.end()) {
+            std::get<11>(itm->second) = false;
+        }
+    }
+
+    bool storeFileInMemory(const std::filesystem::path &path) {
+        if (const auto itm = _locations.find(path); itm != _locations.end()) {
+            return std::get<11>(itm->second);
+        }
+        return false;
     }
 };
 

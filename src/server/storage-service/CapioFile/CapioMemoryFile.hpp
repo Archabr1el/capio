@@ -10,10 +10,10 @@
 
 #include <capio/queue.hpp>
 
-class CapioMemoryFile {
+#include "CapioFile.hpp"
+
+class CapioMemoryFile : public CapioFile {
     std::map<std::size_t, std::vector<char>> memoryBlocks;
-    const std::string fileName;
-    std::size_t totalSize;
 
     // maps for bits
     static constexpr u_int32_t _pageSizeMB    = 4;
@@ -57,7 +57,7 @@ class CapioMemoryFile {
     }
 
   public:
-    explicit CapioMemoryFile(const std::string &filePath) : fileName(filePath), totalSize(0) {}
+    explicit CapioMemoryFile(const std::string &filePath) : CapioFile(filePath) {}
 
     /**
      * Write data to a file stored inside the memory
@@ -66,7 +66,7 @@ class CapioMemoryFile {
      * @param buffer_length Size of the buffer.
      */
     std::size_t writeData(const char *buffer, const std::size_t file_offset,
-                          std::size_t buffer_length) {
+                          std::size_t buffer_length) override {
 
         const auto &[map_offset, write_offset, first_write_size] =
             compute_offsets(file_offset, buffer_length);
@@ -141,7 +141,7 @@ class CapioMemoryFile {
      * @param offset
      * @param length
      */
-    void readFromQueue(SPSCQueue &queue, std::size_t offset, std::size_t length) {
+    void readFromQueue(SPSCQueue &queue, std::size_t offset, std::size_t length) override {
 
         const auto &[map_offset, write_offset, first_write_size] = compute_offsets(offset, length);
 
@@ -178,7 +178,8 @@ class CapioMemoryFile {
      * @param length
      * @return
      */
-    std::size_t writeToQueue(SPSCQueue &queue, std::size_t offset, std::size_t length) const {
+    std::size_t writeToQueue(SPSCQueue &queue, std::size_t offset,
+                             std::size_t length) const override {
         std::size_t bytesRead = 0;
 
         const auto &[map_offset, mem_block_offset_begin, mem_block_offset_end] =
@@ -203,9 +204,6 @@ class CapioMemoryFile {
 
         return bytesRead;
     }
-
-    [[nodiscard]] std::size_t getSize() const { return totalSize; }
-    [[nodiscard]] const std::string &getFileName() const { return fileName; }
 };
 
 #endif // CAPIOMEMORYFILE_HPP
