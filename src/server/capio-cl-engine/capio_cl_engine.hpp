@@ -77,6 +77,11 @@ class CapioCLEngine {
                   << "|     Parsed configuration file for workflow: \e[1;36m" << workflow_name
                   << std::setw(83 - workflow_name.length()) << "\e[0m |" << std::endl
                   << "|" << std::setw(124) << "|" << std::endl
+                  << "|     File color legend:     \e[48;5;034m  \e[0m File stored in memory"
+                  << std::setw(72) << "|" << std::endl
+                  << "|                            "
+                  << "\e[48;5;172m  \e[0m File stored on file system" << std::setw(67) << "|"
+                  << std::endl
                   << "|============================================================================"
                      "===============================================|"
                   << std::endl
@@ -90,9 +95,13 @@ class CapioCLEngine {
                      "============|============|===========|=========|"
                   << std::endl;
         for (auto itm : _locations) {
+            std::string color_preamble = std::get<11>(itm.second) ? "\e[38;5;034m" : "\e[38;5;172m";
+            std::string color_post     = "\e[0m";
+
             std::string name_trunc = truncateLastN(itm.first, 12);
             auto kind              = std::get<6>(itm.second) ? "F" : "D";
-            std::cout << "|   " << kind << "  | " << name_trunc << std::setfill(' ')
+            std::cout << "|   " << color_preamble << kind << color_post << "  | " << color_preamble
+                      << name_trunc << color_post << std::setfill(' ')
                       << std::setw(20 - name_trunc.length()) << "| ";
 
             auto producers = std::get<0>(itm.second);
