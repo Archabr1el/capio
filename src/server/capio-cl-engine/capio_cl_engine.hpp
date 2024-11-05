@@ -456,6 +456,19 @@ class CapioCLEngine {
         }
         return false;
     }
+
+    std::vector<std::string> getFileToStoreInMemory() {
+        START_LOG(gettid(), "call()");
+        std::vector<std::string> files;
+
+        for (const auto &[path, file] : _locations) {
+            if (std::get<11>(file)) {
+                files.push_back(path);
+            }
+        }
+
+        return files;
+    }
 };
 
 inline CapioCLEngine *capio_cl_engine;

@@ -34,7 +34,7 @@ char node_name[HOST_NAME_MAX];
 #include "utils/signals.hpp"
 
 #include "file-manager/file_manager.hpp"
-#include "storage-service/capio_storage_service.h"
+#include "storage-service/capio_storage_service.hpp"
 
 std::string parseCLI(int argc, char **argv) {
     Logger *log;
