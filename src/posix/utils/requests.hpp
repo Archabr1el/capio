@@ -34,10 +34,10 @@ inline void init_client() {
 
 inline void attach_data_queue(const std::string &app_name) {
     START_LOG(capio_syscall(SYS_gettid), "call(app_name=%s)", app_name.c_str());
-    cts_queue =
-        new SPSCQueue(app_name + ".cts", CAPIO_MAX_SPSQUEUE_ELEMS, CAPIO_MAX_SPSQUEUE_ELEMS);
-    stc_queue =
-        new SPSCQueue(app_name + ".stc", CAPIO_MAX_SPSQUEUE_ELEMS, CAPIO_MAX_SQSCQUEUE_ELEM_SIZE);
+    cts_queue = new SPSCQueue("queue-" + app_name + ".cts", CAPIO_MAX_SPSQUEUE_ELEMS,
+                              CAPIO_MAX_SQSCQUEUE_ELEM_SIZE);
+    stc_queue = new SPSCQueue("queue-" + app_name + ".stc", CAPIO_MAX_SPSQUEUE_ELEMS,
+                              CAPIO_MAX_SQSCQUEUE_ELEM_SIZE);
 }
 
 /**
