@@ -86,13 +86,13 @@ inline void exit_group_request(const long tid) {
 inline void handshake_anonymous_request(const long tid, const long pid) {
     START_LOG(capio_syscall(SYS_gettid), "call(tid=%ld, pid=%ld)", tid, pid);
     char req[CAPIO_REQ_MAX_SIZE];
-    capio_off64_t files_to_read_from_queue;
+    capio_off64_t files_to_read_from_queue = 0;
     sprintf(req, "%04d %ld %ld", CAPIO_REQUEST_HANDSHAKE_ANONYMOUS, tid, pid);
     buf_requests->write(req, CAPIO_REQ_MAX_SIZE);
     LOG("Sent handshake request");
     attach_data_queue(CAPIO_DEFAULT_APP_NAME);
     LOG("Reading number of paths to receive from server");
-    bufs_response->at(tid)->read(&files_to_read_from_queue, sizeof(files_to_read_from_queue));
+  //  bufs_response->at(tid)->read(&files_to_read_from_queue, sizeof(files_to_read_from_queue));
     LOG("Need to read %llu paths", files_to_read_from_queue);
     paths_to_store_in_memory = new std::vector<std::string>;
     for (int i = 0; i < files_to_read_from_queue; i++) {
@@ -115,13 +115,13 @@ inline void handshake_named_request(const long tid, const long pid, const std::s
     START_LOG(capio_syscall(SYS_gettid), "call(tid=%ld, pid=%ld, app_name=%s)", tid, pid,
               app_name.c_str());
     char req[CAPIO_REQ_MAX_SIZE];
-    capio_off64_t files_to_read_from_queue;
+    capio_off64_t files_to_read_from_queue = 0;
     sprintf(req, "%04d %ld %ld %s", CAPIO_REQUEST_HANDSHAKE_NAMED, tid, pid, app_name.c_str());
     buf_requests->write(req, CAPIO_REQ_MAX_SIZE);
     LOG("Sent handshake request");
     attach_data_queue(app_name);
     LOG("Reading number of paths to receive from server");
-    bufs_response->at(tid)->read(&files_to_read_from_queue, sizeof(files_to_read_from_queue));
+  //  bufs_response->at(tid)->read(&files_to_read_from_queue, sizeof(files_to_read_from_queue));
     LOG("Need to read %llu paths", files_to_read_from_queue);
     paths_to_store_in_memory = new std::vector<std::string>;
     for (int i = 0; i < files_to_read_from_queue; i++) {
