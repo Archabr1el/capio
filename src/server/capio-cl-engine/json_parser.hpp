@@ -387,7 +387,7 @@ class JsonParser {
                       << "Warning: capio does not support home node policies yet! skipping section "
                       << std::endl;
         }
-/*
+
         if (entries["storage"].get_object().get(storage_section)) {
             std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_WARNING << " [ " << node_name << " ] "
                       << "No storage section found for workflow: " << workflow_name << std::endl;
@@ -429,7 +429,7 @@ class JsonParser {
             std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_JSON << " [ " << node_name << " ] "
                       << "Completed parsing of memory storage directives" << std::endl;
         }
-*/
+
         std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_JSON << std::endl;
 
         return locations;
