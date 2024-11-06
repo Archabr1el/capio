@@ -151,8 +151,6 @@ jobs:
         run: |
           export LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
           
-          ls /dev/shm/
-          
           echo "Run CAPIO syscall Unit tests"
           LD_PRELOAD=libcapio_posix.so \
           capio_syscall_unit_tests \
