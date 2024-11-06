@@ -181,9 +181,9 @@ int main(int argc, char **argv) {
     shm_canary              = new CapioShmCanary(workflow_name);
     file_manager            = new CapioFileManager();
     fs_monitor              = new FileSystemMonitor();
-    storage_service         = new CapioStorageService();
     ctl_module              = new CapioCTLModule();
     request_handlers_engine = new RequestHandlerEngine();
+    storage_service         = new CapioStorageService();
 
     capio_cl_engine->print();
     request_handlers_engine->start();
