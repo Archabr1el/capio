@@ -92,7 +92,7 @@ inline void handshake_anonymous_request(const long tid, const long pid) {
     LOG("Sent handshake request");
     attach_data_queue(CAPIO_DEFAULT_APP_NAME);
     LOG("Reading number of paths to receive from server");
-  //  bufs_response->at(tid)->read(&files_to_read_from_queue, sizeof(files_to_read_from_queue));
+    //  bufs_response->at(tid)->read(&files_to_read_from_queue, sizeof(files_to_read_from_queue));
     LOG("Need to read %llu paths", files_to_read_from_queue);
     paths_to_store_in_memory = new std::vector<std::string>;
     for (int i = 0; i < files_to_read_from_queue; i++) {
@@ -121,7 +121,7 @@ inline void handshake_named_request(const long tid, const long pid, const std::s
     LOG("Sent handshake request");
     attach_data_queue(app_name);
     LOG("Reading number of paths to receive from server");
-  //  bufs_response->at(tid)->read(&files_to_read_from_queue, sizeof(files_to_read_from_queue));
+    //  bufs_response->at(tid)->read(&files_to_read_from_queue, sizeof(files_to_read_from_queue));
     LOG("Need to read %llu paths", files_to_read_from_queue);
     paths_to_store_in_memory = new std::vector<std::string>;
     for (int i = 0; i < files_to_read_from_queue; i++) {

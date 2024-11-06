@@ -18,7 +18,7 @@ inline void handshake_anonymous_handler(const char *const str) {
     client_manager->register_new_client(tid, CAPIO_DEFAULT_APP_NAME);
     const capio_off64_t count = storage_service->register_client(CAPIO_DEFAULT_APP_NAME);
     LOG("Need to read  %ld files from queue", count);
-   // client_manager->reply_to_client(tid, count);
+    client_manager->reply_to_client(tid, count);
 }
 
 /**
@@ -35,7 +35,7 @@ inline void handshake_named_handler(const char *const str) {
     client_manager->register_new_client(tid, app_name);
     const capio_off64_t count = storage_service->register_client(app_name);
     LOG("Need to read  %ld files from queue", count);
-    //    client_manager->reply_to_client(tid, count);
+    client_manager->reply_to_client(tid, count);
 }
 
 #endif // HANDSHAKE_HPP
