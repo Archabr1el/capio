@@ -5,7 +5,6 @@ std::string node_name;
 
 #include "../server/storage-service/CapioFile/CapioMemoryFile.hpp"
 
-
 constexpr size_t FILE_SIZE = 8 * 1024 * 1024;
 
 TEST(CapioMemoryFileTest, TestSimpleWriteAndReadDifferentOffsets) {
