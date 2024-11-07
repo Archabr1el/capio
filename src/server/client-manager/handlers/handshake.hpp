@@ -19,7 +19,6 @@ inline void handshake_handler(const char *const str) {
     client_manager->register_new_client(tid, app_name);
     const capio_off64_t count = storage_service->register_client(app_name);
     LOG("Need to read  %ld files from queue", count);
-    sleep(1);
     client_manager->reply_to_client(tid, count);
 }
 
