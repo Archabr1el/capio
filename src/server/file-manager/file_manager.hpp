@@ -3,7 +3,6 @@
 
 #include <mutex>
 
-
 inline std::mutex creation_mutex;
 inline std::mutex data_mutex;
 /**

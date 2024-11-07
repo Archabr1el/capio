@@ -52,9 +52,9 @@ class CapioStorageService {
     [[nodiscard]] capio_off64_t register_client(const std::string &app_name) const {
         START_LOG(gettid(), "call(app_name=%s)", app_name.c_str());
         auto cts_queue = new SPSCQueue("queue-" + app_name + ".cts", CAPIO_MAX_SPSQUEUE_ELEMS,
-                                       CAPIO_MAX_SQSCQUEUE_ELEM_SIZE);
+                                       CAPIO_MAX_SPSCQUEUE_ELEM_SIZE);
         auto stc_queue = new SPSCQueue("queue-" + app_name + ".stc", CAPIO_MAX_SPSQUEUE_ELEMS,
-                                       CAPIO_MAX_SQSCQUEUE_ELEM_SIZE);
+                                       CAPIO_MAX_SPSCQUEUE_ELEM_SIZE);
         _client_to_server_queue->emplace(app_name, cts_queue);
         _server_to_clien_queue->emplace(app_name, stc_queue);
         LOG("Created communication queues");
