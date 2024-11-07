@@ -106,7 +106,8 @@ jobs:
             libopenmpi-dev \
             ninja-build \
             openmpi-bin \
-            pkg-config
+            pkg-config \
+            cmake
       - name: "Get compiler version"
         run: |
           IFS='-' read -r -a COMPILER <<< "${{ matrix.cxx }}"
