@@ -53,7 +53,7 @@ inline void handshake_request(const long tid, const long pid, const std::string 
                               CAPIO_MAX_SPSCQUEUE_ELEM_SIZE);
     LOG("Attached data queues. Reading number of paths to receive from server");
     bufs_response->at(tid)->read(&files_to_read_from_queue);
-    //LOG("Need to read %llu paths", files_to_read_from_queue);
+    LOG("Need to read %llu paths", files_to_read_from_queue);
     paths_to_store_in_memory = new std::vector<std::string>;
     for (int i = 0; i < files_to_read_from_queue; i++) {
         LOG("Reading %d file", i);
