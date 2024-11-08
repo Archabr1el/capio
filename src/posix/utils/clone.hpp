@@ -45,7 +45,7 @@ inline void init_process(pid_t tid) {
     auto pid                   = static_cast<pid_t>(syscall_no_intercept(SYS_gettid));
 
     /**
-     * The prevu=ius if, for an anonymous handshake was present, however the get_capio_app_name()
+     * The previous if, for an anonymous handshake was present, however the get_capio_app_name()
      * never returns a nullptr, as there is a default name, thus rendering the
      * handshake_anonymous_request() useless
      */

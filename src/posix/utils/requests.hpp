@@ -44,7 +44,7 @@ inline void handshake_request(const long tid, const long pid, const std::string 
               app_name.c_str());
     char req[CAPIO_REQ_MAX_SIZE];
     capio_off64_t files_to_read_from_queue = 0;
-    sprintf(req, "%04d %ld %ld %s", CAPIO_REQUEST_HANDSHAKE, 8340L, pid, app_name.c_str());
+    sprintf(req, "%04d %ld %ld %s", CAPIO_REQUEST_HANDSHAKE, tid, pid, app_name.c_str());
     buf_requests->write(req, CAPIO_REQ_MAX_SIZE);
     LOG("Sent handshake request");
     cts_queue = new SPSCQueue("queue-" + app_name + ".cts", CAPIO_MAX_SPSQUEUE_ELEMS,

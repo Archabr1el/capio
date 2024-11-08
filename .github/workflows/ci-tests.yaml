@@ -179,7 +179,7 @@ jobs:
         run: tail -v -n +1 capio_logs/posix/$(hostname)/posix_thread_*.log
       - name: "Show server logs on failure"
         if: ${{ always() && steps.run-tests.outcome == 'failure' && matrix.build_type == 'Debug' }}
-        run: tail -v -n +1 capio_logs/server/$(hostname)/server_thread_*.log
+        run: ls -lah /dev/shm/ #tail -v -n +1 capio_logs/server/$(hostname)/server_thread_*.log
       - name: "Generate coverage report"
         if: ${{ matrix.build_type == 'Debug' }}
         run: |
