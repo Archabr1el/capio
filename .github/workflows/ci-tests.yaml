@@ -145,12 +145,11 @@ jobs:
           sudo cmake --install ../build --prefix /usr/local
       - name: "Run tests"
         id: run-tests
-        #timeout-minutes: 1
+        timeout-minutes: 1
         env:
           CAPIO_DIR: ${{ github.workspace }}
           CAPIO_LOG_LEVEL: -1
         run: |
-          $(sleep 60 && killall -TERM capio_syscall_unit_tests)&
           export LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
           
           echo "Run CAPIO syscall Unit tests"
@@ -159,7 +158,22 @@ jobs:
             --gtest_break_on_failure \
             --gtest_print_time=1
           
-
+          echo "Run CAPIO POSIX Unit tests"
+          capio_posix_unit_tests \
+            --gtest_break_on_failure \
+            --gtest_print_time=1
+          
+          echo "Run CAPIO SERVER unit tests"
+          capio_server_unit_tests \
+            --gtest_break_on_failure \
+            --gtest_print_time=1
+          
+          echo "Run CAPIO integration tests"
+          rm -rf /dev/shm/CAPIO*
+          LD_PRELOAD=libcapio_posix.so \
+          capio_integration_tests \
+            --gtest_break_on_failure \
+            --gtest_print_time=1
       - name: "Show client logs on failure"
         if: ${{ always() && steps.run-tests.outcome == 'failure' && matrix.build_type == 'Debug' }}
         run: tail -v -n +1 capio_logs/posix/$(hostname)/posix_thread_*.log
