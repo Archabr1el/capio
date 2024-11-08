@@ -150,7 +150,7 @@ jobs:
           CAPIO_DIR: ${{ github.workspace }}
           CAPIO_LOG_LEVEL: -1
         run: |
-          $(sleep 60 && killall -TERM capio_server)&
+          $(sleep 60 && killall -TERM capio_syscall_unit_tests)&
           export LD_LIBRARY_PATH="/usr/local/lib:${LD_LIBRARY_PATH}"
           
           echo "Run CAPIO syscall Unit tests"
