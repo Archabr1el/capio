@@ -26,10 +26,6 @@ inline void init_client() {
     buf_requests =
         new CircularBuffer<char>(SHM_COMM_CHAN_NAME, CAPIO_REQ_BUFF_CNT, CAPIO_REQ_MAX_SIZE);
     bufs_response = new CPBufResponse_t();
-
-    // TODO: use var to set cache size
-    // TODO: also enable multithreading
-    init_caches();
 }
 
 /**
@@ -50,21 +46,21 @@ inline void handshake_request(const long tid, const long pid, const std::string 
     LOG("Attached data queues. Reading number of paths to receive from server");
     bufs_response->at(tid)->read(&files_to_read_from_queue);
 
-    cts_queue = new SPSCQueue("queue-" + app_name + ".cts", CAPIO_MAX_SPSQUEUE_ELEMS,
-                              CAPIO_MAX_SPSCQUEUE_ELEM_SIZE);
-    stc_queue = new SPSCQueue("queue-" + app_name + ".stc", CAPIO_MAX_SPSQUEUE_ELEMS,
-                              CAPIO_MAX_SPSCQUEUE_ELEM_SIZE);
+    //   cts_queue = new SPSCQueue("queue-" + app_name + ".cts", CAPIO_MAX_SPSQUEUE_ELEMS,
+    //                            CAPIO_MAX_SPSCQUEUE_ELEM_SIZE);
+    // stc_queue = new SPSCQueue("queue-" + app_name + ".stc", CAPIO_MAX_SPSQUEUE_ELEMS,
+    //                         CAPIO_MAX_SPSCQUEUE_ELEM_SIZE);
 
     LOG("Need to read %llu paths", files_to_read_from_queue);
-    paths_to_store_in_memory = new std::vector<std::string>;
-    for (int i = 0; i < files_to_read_from_queue; i++) {
-        LOG("Reading %d file", i);
-        auto file = new char[CAPIO_MAX_SPSCQUEUE_ELEM_SIZE]{};
-        stc_queue->read(file, CAPIO_MAX_SPSCQUEUE_ELEM_SIZE);
-        LOG("Obtained path %s", file);
-        paths_to_store_in_memory->emplace_back(file);
-        delete[] file;
-    }
+    /* paths_to_store_in_memory = new std::vector<std::string>;
+     for (int i = 0; i < files_to_read_from_queue; i++) {
+         LOG("Reading %d file", i);
+         auto file = new char[CAPIO_MAX_SPSCQUEUE_ELEM_SIZE]{};
+         stc_queue->read(file, CAPIO_MAX_SPSCQUEUE_ELEM_SIZE);
+         LOG("Obtained path %s", file);
+         paths_to_store_in_memory->emplace_back(file);
+         delete[] file;
+     }*/
 }
 
 // non blocking

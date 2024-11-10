@@ -42,8 +42,6 @@ jobs:
       - name: "Run unit tests with Docker"
         run: |
 
-          bash -c "sleep 5 && ps -aux" &
-
           echo "Run CAPIO POSIX Unit tests"
           docker run --rm                         \
               --env CAPIO_DIR=/tmp                \
