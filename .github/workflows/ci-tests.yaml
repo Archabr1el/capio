@@ -42,7 +42,7 @@ jobs:
       - name: "Run unit tests with Docker"
         run: |
 
-          $(sleep 5 && echo 'running process:' && ps -aux)&
+          $(sleep 5 && echo 'running process:' && ps -aux) &
 
           echo "Run CAPIO POSIX Unit tests"
           docker run --rm                         \
