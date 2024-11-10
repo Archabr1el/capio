@@ -72,7 +72,11 @@ class ClientManager {
      */
     inline void reply_to_client(pid_t tid, capio_off64_t offset) const {
         START_LOG(gettid(), "call(tid=%ld, offset=%llu)", tid, offset);
-        bufs_response->at(tid)->write(&offset);
+        try {
+            bufs_response->at(tid)->write(&offset);
+        } catch (const std::string &ex) {
+            std::cout << "Unable to write: " << ex << std::endl;
+        }
     }
 
     /**
