@@ -44,7 +44,7 @@ inline void handshake_request(const long tid, const long pid, const std::string 
     buf_requests->write(req, CAPIO_REQ_MAX_SIZE);
     LOG("Sent handshake request");
     LOG("Attached data queues. Reading number of paths to receive from server");
-    bufs_response->at(tid)->read(&files_to_read_from_queue);
+    // bufs_response->at(tid)->read(&files_to_read_from_queue);
 
     //   cts_queue = new SPSCQueue("queue-" + app_name + ".cts", CAPIO_MAX_SPSQUEUE_ELEMS,
     //                            CAPIO_MAX_SPSCQUEUE_ELEM_SIZE);
