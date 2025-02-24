@@ -10,6 +10,7 @@ constexpr capio_off64_t BUFFER_SIZES = 1024;
 
 TEST(CapioCommServiceTest, TestPingPong) {
     // pare il il primo utente che fara da server
+
     gethostname(node_name.data(), HOST_NAME_MAX);
     CapioCommunicationService backend("TCP", "1234", 300);
     capio_off64_t size_revc, offset;

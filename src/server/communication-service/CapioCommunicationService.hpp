@@ -341,7 +341,12 @@ class CapioCommunicationService : BackendInterface {
         LOG("Received buffer: %s", inputUnit->_bytes);
         std::cout << endTime;
         std::time_t duration = endTime - inputUnit->timePointer;
-        std::cout <<"Hai una banda di "<< duration/*/(*buf_size) << "Bytes al secondo" */<< std::endl;
+
+        if (duration <= 0) {
+            std::cout << "hai una connnessione velocissima!" << std::endl;
+        } else {
+             std::cout <<"Hai una banda di "<< (*buf_size)/duration  << "Bytes al secondo" << std::endl;
+        }
         inQueue->pop();
 
         std::string filename(inputUnit->_filepath);
