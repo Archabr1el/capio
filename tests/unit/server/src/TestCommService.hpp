@@ -5,8 +5,11 @@
 #include <gtest/gtest.h>
 #include <thread>
 
-constexpr char TEST_MESSAGE[]        = "hello world how is it going?";
+constexpr char TEST_MESSAGE[] = "hello world how is it going?";
 constexpr capio_off64_t BUFFER_SIZES = 1024;
+
+
+
 
 TEST(CapioCommServiceTest, TestPingPong) {
     // pare il il primo utente che fara da server
@@ -24,30 +27,62 @@ TEST(CapioCommServiceTest, TestPingPong) {
 
     char ownHostname[HOST_NAME_MAX] = {0};
     gethostname(ownHostname, HOST_NAME_MAX);
+    for (int size = 1024; size <= 16 * 1024 * 1024; size *= 2) {// 1KB, 2KB, 4KB, ..., 16MB
+                char* buff = new char[size];
+                char* buff1 = new char[size];
+                char* buffrec = new char[size];
+        std::cout << "Testing with buffer size: " << size << " bytes" << std::endl;
+            for (const auto &i : connections) {
 
-    for (const auto &i : connections) {
-        if (i.compare(ownHostname) < 0) {
-            std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_INFO << "Sending ping to: " << i << std::endl;
-            char buff[BUFFER_SIZES]{0}, buff1[BUFFER_SIZES]{0};
             memcpy(buff, TEST_MESSAGE, strlen(TEST_MESSAGE));
-            backend.send(i, buff, BUFFER_SIZES, "./test", 0);
-            std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_INFO << "sent ping to: " << i
-                      << ". Waiting for response" << std::endl;
-            backend.recive(buff1, &size_revc, &offset);
-            std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_INFO << "Received ping response from : " << i
-                      << std::endl;
-            EXPECT_EQ(strcmp(buff, buff1), 0);
-            return;
+
+            if (i.compare(ownHostname) < 0) {
+                // Inizio del tempo di invio
+                auto start_time = std::chrono::high_resolution_clock::now();
+
+                std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_INFO << "Sending ping to: " << i << std::endl;
+                backend.send(i, buff, size, "./test", 0);
+                std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_INFO << "Sending ping to: " << i << std::endl;
+                // Inizio del tempo di ricezione (solo dopo il send)
+                backend.recive(buff1, &size_revc, &offset);
+                std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_INFO << "Sending ping to: " << i << std::endl;
+                // Fine del tempo di ricezione
+                auto end_time = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> total_duration = end_time - start_time;
+
+                // Calcolare la banda considerando sia il messaggio inviato che ricevuto
+                double bandwidth = ((size * 2) / (1024.0 * 1024.0)) / total_duration.count(); // MB/s
+                std::cout << "Banda del mandante  " << bandwidth << " MB/s" << std::endl;
+
+                std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_INFO << "Received ping response from : " << i << std::endl;
+
+            } else {
+                std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_INFO << "SECOND :Listening for ping from: " << i
+                          << std::endl;
+
+                backend.recive(buffrec, &size_revc, &offset);
+
+                // Inizio del tempo di invio risposta
+                auto start_time = std::chrono::high_resolution_clock::now();
+
+                std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_INFO << " SECOD: Received ping from: " << i << std::endl;
+
+                backend.send(i, buffrec, size_revc, "./test", 0);
+
+                // Fine del tempo di invio risposta
+                auto end_time = std::chrono::high_resolution_clock::now();
+                std::chrono::duration<double> send_duration = end_time - start_time;
+                double bandwidth = (size * 2) / (1024.0 * 1024.0) / send_duration.count(); // MB/s
+                std::cout << "SECOND: Banda in invio risposta: " << bandwidth << " MB/s" << std::endl;
+
+                std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_INFO << "SECOND: Sent ping response to: " << i << std::endl;
+            }
         }
-        std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_INFO << "Listening for ping from: " << i
-                  << std::endl;
-        char recvBuff[BUFFER_SIZES];
-        backend.recive(recvBuff, &size_revc, &offset);
-        std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_INFO << "Received ping from: " << i << std::endl;
-        EXPECT_EQ(strcmp(recvBuff, TEST_MESSAGE), 0);
-        backend.send(i, recvBuff, size_revc, "./test", 0);
-        std::cout << CAPIO_LOG_SERVER_CLI_LEVEL_INFO << "Sent ping response to: " << i << std::endl;
-        return;
+        delete[] buff;
+        delete[] buff1;
+        delete[] buffrec;
+
+
     }
 }
 

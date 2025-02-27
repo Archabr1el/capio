@@ -20,7 +20,7 @@ class TransportUnit {
     char *_bytes{};
     capio_off64_t _buffer_size{};
     capio_off64_t _start_write_offset{};
-    std::time_t timePointer{};
+    //std::time_t timePointer{};
 
   public:
     TransportUnit() = default;
@@ -47,7 +47,7 @@ class CapioCommunicationService : BackendInterface {
         START_LOG(gettid(), "call()");
         size_t filepath_len;
         const auto unit = new TransportUnit();
-        HandlerPointer->receive(&unit->timePointer, sizeof(std::time_t));
+        //HandlerPointer->receive(&unit->timePointer, sizeof(std::time_t));
         HandlerPointer->receive(&filepath_len, sizeof(size_t));
         unit->_filepath.reserve(filepath_len + 1);
         HandlerPointer->receive(unit->_filepath.data(), filepath_len);
@@ -70,7 +70,7 @@ class CapioCommunicationService : BackendInterface {
          * step2: send data
          */;
 
-        HandlerPointer->send(&unit->timePointer, sizeof(std::time_t));
+        //HandlerPointer->send(&unit->timePointer, sizeof(std::time_t));
         const size_t file_path_length = unit->_filepath.length();
         HandlerPointer->send(&file_path_length, sizeof(size_t));
         HandlerPointer->send(unit->_filepath.c_str(), file_path_length);
@@ -336,17 +336,17 @@ class CapioCommunicationService : BackendInterface {
         *buf_size            = inputUnit->_buffer_size;
         *start_offset        = inputUnit->_start_write_offset;
         memcpy(buf, inputUnit->_bytes, *buf_size);
-        auto startChrono            = std::chrono::system_clock::now(); // iniza timer
-        const std::time_t endTime = std::chrono::system_clock::to_time_t(startChrono);
+      //  auto startChrono            = std::chrono::system_clock::now(); // iniza timer
+       // const std::time_t endTime = std::chrono::system_clock::to_time_t(startChrono);
         LOG("Received buffer: %s", inputUnit->_bytes);
-        std::cout << endTime;
+       /* std::cout << endTime;
         std::time_t duration = endTime - inputUnit->timePointer;
 
         if (duration <= 0) {
             std::cout << "hai una connnessione velocissima!" << std::endl;
         } else {
              std::cout <<"Hai una banda di "<< (*buf_size)/duration  << "Bytes al secondo" << std::endl;
-        }
+        }*/
         inQueue->pop();
 
         std::string filename(inputUnit->_filepath);
@@ -366,12 +366,12 @@ class CapioCommunicationService : BackendInterface {
 
             const auto interface = element->second;
             auto *out            = std::get<1>(interface);
-            auto startChrono            = std::chrono::system_clock::now(); // iniza timer
-            std::time_t startTime =   std::chrono::system_clock::to_time_t(startChrono);
+          //  auto startChrono            = std::chrono::system_clock::now(); // iniza timer
+        //    std::time_t startTime =   std::chrono::system_clock::to_time_t(startChrono);
 
             const auto outputUnit           = new TransportUnit();
-            std::cout << "time in first send method: " << startTime << std::endl;
-            outputUnit->timePointer         =  startTime;
+         //   std::cout << "time in first send method: " << startTime << std::endl;
+           // outputUnit->timePointer         =  startTime;
             outputUnit->_buffer_size        = buf_size;
             outputUnit->_filepath           = filepath;
             outputUnit->_start_write_offset = start_offset;
