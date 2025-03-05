@@ -91,16 +91,10 @@ TEST(CapioCommServiceTest, TestPingPong) {
 #include <chrono>
 #include <vector>
 #include <iostream>
-#define EXPECTED_CONNECTIONS 7// Numero di client attesi numero macchine 4
-#define TEST_MESSAGE "Hello, this is a broadcast test."
-#include <iostream>
-#include <vector>
+#define EXPECTED_CONNECTIONS 3// Numero di client attesi numero macchine 4
 #include <algorithm>
 #include <cstring>
-#define TEST_MESSAGE "Hello, this is a broadcast test."
 #define SERVER_HOSTNAME "fd-02"
-std::mutex mtx;
-#include <mutex>
 
 
 std::time_t convertToTimeT(const char* timestamp) {
@@ -109,47 +103,75 @@ std::time_t convertToTimeT(const char* timestamp) {
     ss >> std::get_time(&tm, "%Y-%m-%d %H:%M:%S"); // Parsing della stringa
 
     if (ss.fail()) {
+        std::cerr << "[ERROR] Errore nel parsing della data: " << timestamp << std::endl;
         throw std::runtime_error("Errore nel parsing della data");
     }
 
-    return std::mktime(&tm); // Converte tm in time_t
+    std::time_t t = std::mktime(&tm);
+    if (t == -1) {
+        std::cerr << "[ERROR] std::mktime ha restituito -1 per timestamp: " << timestamp << std::endl;
+    }
+
+    return t;
 }
+
 void client_behavior(CapioCommunicationService& backend, const std::string& serverNode) {
     capio_off64_t size_recv, offset;
-
-    for (int size = 1024; size <=  1024 * 1024; size *= 2) {//1Kb-> 1Mb
+    //for (size_t size = 128 * 1024 * 1024; size <= 4L * 1024 * 1024 * 1024; size *= 2) { // con 8 connection fai 2L con 4 connection fai 4L con 11 connection fai 1L
+    for (int size = 1024; size <= 16 *1024 * 1024; size *= 2) { // 1Kb -> 16Mb
         std::vector<char> buff_rec(size, 0);  // Usa std::vector per gestire il buffer
 
         std::cout << "[CLIENT] Waiting for message of size " << size << " bytes..." << std::endl;
         backend.recive(buff_rec.data(), &size_recv, &offset);
 
-        std::cout << "[CLIENT] Received message " << buff_rec.data() << " , sending response..." << std::endl;
+        // Assicuriamoci che il buffer sia terminato correttamente
+        if (size_recv < size) {
+            buff_rec[size_recv] = '\0';
+        }
+
+        std::cout << "[CLIENT] Received message: " << buff_rec.data() << " (size: " << size_recv << ")" << std::endl;
         backend.send("fd-02", buff_rec.data(), size_recv, "./test", 0);
 
         auto end_time = std::chrono::high_resolution_clock::now();
-        std::chrono::system_clock::time_point start =
-            std::chrono::system_clock::from_time_t(convertToTimeT(buff_rec.data()));
 
-        std::chrono::duration<double> total_duration = end_time - start;
-        double bandwidth = ((size / (1024.0 * 1024.0)) / total_duration.count());
-        std::cout << "Broadcast completed in " << total_duration.count()
-                  << " seconds, Bandwidth: " << bandwidth << " MB/s" << std::endl;
+        try {
+            std::chrono::system_clock::time_point start =
+                std::chrono::system_clock::from_time_t(convertToTimeT(buff_rec.data()));
+            std::chrono::duration<double> total_duration = end_time - start;
+            double bandwidth = ((size / (1024.0 * 1024.0)) / total_duration.count());
+            std::cout << "Broadcast completed in " << total_duration.count()
+                      << " seconds, Bandwidth: " << bandwidth << " MB/s" << std::endl;
+        } catch (const std::exception& e) {
+            std::cerr << "[ERROR] Exception in time conversion: " << e.what() << std::endl;
+        }
     }
 }
 
-std::string getTimestamp() {
+void fillBufferWithTimestamp(std::vector<char>& buffer) {
+    // Get current time
     auto now = std::chrono::system_clock::now();
-    std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+    std::time_t nowTime = std::chrono::system_clock::to_time_t(now);
 
-    std::stringstream ss;
-    ss << std::put_time(std::localtime(&now_c), "%Y-%m-%d %H:%M:%S");
+    // Convert to string format: "YYYY-MM-DD HH:MM:SS"
+    std::ostringstream oss;
+    oss << std::put_time(std::localtime(&nowTime), "%Y-%m-%d %H:%M:%S");
+    std::string timestampStr = oss.str();
 
-    return ss.str();  // Ritorna std::string invece di char*
+    // Ensure timestamp fits in the buffer
+    if (timestampStr.size() > buffer.size()) {
+        std::cerr << "[ERROR] Buffer too small for timestamp!" << std::endl;
+        return;
+    }
+
+    // Copy timestamp into the buffer, padding the rest with '\0'
+    std::memset(buffer.data(), 0, buffer.size());  // Zero the buffer
+    std::memcpy(buffer.data(), timestampStr.c_str(), timestampStr.size());  // Copy timestamp
 }
 
 void server_behavior(CapioCommunicationService& backend, const std::vector<std::string>& connections) {
     capio_off64_t size_recv, offset;
-    for (int size = 1024; size <= 1024 * 1024; size *= 2) { //1Kb-> 1Mb
+    //for (size_t size = 128 * 1024 * 1024; size <= 4L * 1024 * 1024 * 1024; size *= 2) {  // con 8 connection fai 2L con 4 connection fai 4L con 11 connection fai 1L
+    for (int size = 1024; size <= 16*  1024 * 1024; size *= 2) { //1Kb-> 16Mb
         std::vector<char> buff(size, 0);      // Usa std::vector per gestione sicura
         std::vector<char> buff_rec(size, 0);  // Evita il rischio di buffer overflow
 
@@ -157,11 +179,14 @@ void server_behavior(CapioCommunicationService& backend, const std::vector<std::
 
         for (const auto& client : connections) {
             if (client != SERVER_HOSTNAME) {
-               // std::string timestamp = getTimestamp(); // Ora restituisce std::string
+
                 std::cout << "[SERVER] Sending to " << client << std::endl;
-                std::string timestamp = getTimestamp();
-                std::vector<char> timestampBuffer(timestamp.begin(), timestamp.end());
-                timestampBuffer.push_back('\0'); // Aggiunge il terminatore null
+
+                std::vector<char> timestampBuffer(size, 0);
+
+                fillBufferWithTimestamp(timestampBuffer);
+                std::cout << "[DEBUG] Sending " << size << " bytes to " << client
+          << " - Buffer size: " << timestampBuffer.size() << std::endl;
 
                 backend.send(client, timestampBuffer.data(), size, "./test", 0);
 
